@@ -61,7 +61,7 @@ static int ft_putptr(void *ptr)
     int len;
 
     if (ptr == NULL)
-        return ft_putstr("0x0");
+        return ft_putstr("(nil)");
         
     address = (unsigned long)ptr;
     len = ft_putstr("0x");
@@ -85,22 +85,29 @@ static int ft_format_handler(const char c, va_list args)
     else if (c == '%')
         return ft_putchar('%');
     else
-        return ft_putchar(c);
+        return -1;  // 未対応の指定子
 }
 
 int vft_printf(const char *format, va_list args)
 {
     int i;
     int count;
+    int ret;
 
     i = 0;
     count = 0;
     while (format[i])
     {
-        if (format[i] == '%' && format[i + 1])
+        if (format[i] == '%')
         {
             i++;
-            count += ft_format_handler(format[i], args);
+            if (!format[i])
+                return -1;  // フォーマット文字列の最後が%
+            
+            ret = ft_format_handler(format[i], args);
+            if (ret == -1)
+                return -1;  // エラーの場合-1を返す
+            count += ret;
         }
         else
             count += ft_putchar(format[i]);
